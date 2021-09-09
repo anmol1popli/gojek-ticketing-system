@@ -66,6 +66,7 @@ class Ticket(object):
         :param description:
         :return:
         """
+
         if ticket_type in ['check-wallet-balance', 'change-language']:
             return COMMENTS[ticket_type]
         return description
@@ -77,6 +78,7 @@ class Ticket(object):
         :param ticket_type:
         :return:
         """
+
         if ticket_type in ['check-wallet-balance', 'change-language']:
             return TicketState.AUTO_RESOLVED
         return TicketState.OPEN
@@ -86,6 +88,7 @@ class Base(object):
     """
     Base class for Workers.
     """
+
     def __init__(self, name):
         self.name = name
         self.ticket = None
@@ -98,6 +101,7 @@ class Employee(Base):
     """
     Employee Class
     """
+
     def __init__(self, name):
         super(Employee, self).__init__(name)
 
@@ -106,6 +110,7 @@ class Supervisor(Base):
     """
     Supervisor Class
     """
+
     def __init__(self, name):
         super(Supervisor, self).__init__(name)
 
@@ -128,6 +133,7 @@ class TicketSystem(object):
         :param operation_list:
         :return:
         """
+
         if operation_list[1] in ['check-wallet-balance', 'change-language']:
             ticket = Ticket(operation_list[1])
             TICKETS[ticket.id] = ticket
