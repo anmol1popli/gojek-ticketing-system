@@ -153,13 +153,15 @@ class TicketSystem(object):
 
         try:
             ticket_id = int(operation_list[1])
-        except Exception:
-            print("Error! Invalid format of ticket Id-{}".format(operation_list[1]))
+        except Exception as e:
+            print("Error: {} Invalid format of ticket "
+                  "Id-{}".format(e, operation_list[1]))
             return
 
         ticket = TICKETS.get(ticket_id)
         if not ticket:
-            print("Error! No Ticket defined with this Id: {}".format(operation_list[1]))
+            print("Error! No Ticket defined with this "
+                  "Id: {}".format(operation_list[1]))
             return
 
         print("Ticket-{} status: {} comment: {} resolved_by: {} verified_by: "
@@ -179,7 +181,8 @@ class TicketSystem(object):
                 if not ticket:
                     for each in self.open_ticket_queue:
                         if not each.resolved_by:
-                            print("Ticket: {} -> {}".format(each.id, employee.name))
+                            print("Ticket: {} -> {}".format(each.id,
+                                                            employee.name))
                             each.resolved_by = employee
                             each.state = TicketState.ASSIGNED
                             self.employees[employee] = each
@@ -190,8 +193,10 @@ class TicketSystem(object):
                 if supervisor.name == operation_list[1]:
                     if not ticket:
                         for each in self.verification_ticket_queue:
-                            if each.resolved_by and each.state == TicketState.RESOLVED:
-                                print("Ticket: {} -> {}".format(each.id, supervisor.name))
+                            if each.resolved_by and \
+                                    each.state == TicketState.RESOLVED:
+                                print("Ticket: {} -> {}".format(each.id,
+                                                                supervisor.name))
                                 self.supervisors[supervisor] = each
                                 each.verified_by = supervisor
                                 is_assigned = True
@@ -273,6 +278,8 @@ class TicketSystem(object):
 
 def main():
 
+    index = 0
+    is_file_input = False
     employees = {
         Employee("tom"): None,
         Employee("bob"): None
@@ -284,8 +291,25 @@ def main():
     ticket_system = TicketSystem(employees, supervisors)
 
     while True:
-        operation = input()
-        operation = str(operation)
+        if is_file_input:
+            if index == len(input_lines):
+                print("Program Exited.")
+                break
+            operation = input_lines[index]
+            index += 1
+        else:
+            operation = input()
+
+        operation = operation.strip()
+        if operation[-4:] == '.txt':
+            is_file_input = True
+            try:
+                with open(operation, 'r') as file:
+                    input_lines = [line.strip() for line in file]
+            except Exception as e:
+                is_file_input = False
+                print("Error: {} for file: {}".format(e, operation))
+            continue
 
         operation_list = [each.strip() for each in operation.split(' ')]
         if operation_list and operation_list[0] == 'create-ticket':
@@ -300,13 +324,13 @@ def main():
         elif operation_list and operation_list[0] == 'assign-ticket':
             ticket_system.assign_ticket(operation_list)
 
-        elif operation_list[0] == 'resolve-ticket':
+        elif operation_list and operation_list[0] == 'resolve-ticket':
             ticket_system.resolve_ticket(operation_list)
 
-        elif operation_list[0] == 'verify-ticket-resolution':
+        elif operation_list and operation_list[0] == 'verify-ticket-resolution':
             ticket_system.verify_ticket(operation_list)
 
-        elif operation_list[0] == "exit":
+        elif operation_list and operation_list[0] == "exit":
             print("Program Exited")
             break
 
